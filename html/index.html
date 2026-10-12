@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>达赖喇嘛相关认知调查问卷</title>
+<style>
+  :root {
+    --bg: #f5f3ef;
+    --card: #ffffff;
+    --text: #2b2b2b;
+    --muted: #6b6b6b;
+    --border: #e2ded6;
+    --accent: #9a3b26;
+    --accent-soft: #f6e7e2;
+    --error: #c0392b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1b1a;
+      --card: #272523;
+      --text: #ebe8e3;
+      --muted: #a9a49c;
+      --border: #3a3734;
+      --accent: #e08a6d;
+      --accent-soft: #3a2a24;
+      --error: #ff7b6b;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+    line-height: 1.6;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 24px 16px 64px; }
+  header { margin-bottom: 20px; }
+  h1 { font-size: 1.6rem; margin: 0 0 8px; }
+  .intro {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent);
+    border-radius: 8px;
+    padding: 16px 18px;
+    color: var(--muted);
+    font-size: .95rem;
+  }
+  .progress {
+    position: sticky; top: 0; z-index: 10;
+    background: var(--bg);
+    padding: 10px 0;
+  }
+  .progress-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+  .progress-fill { height: 100%; width: 0; background: var(--accent); transition: width .2s; }
+  .progress-text { font-size: .8rem; color: var(--muted); margin-top: 4px; text-align: right; }
+  section { margin-top: 28px; }
+  h2 {
+    font-size: 1.15rem;
+    margin: 0 0 12px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--accent-soft);
+  }
+  .q {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 18px;
+    margin-bottom: 14px;
+    scroll-margin-top: 60px;
+  }
+  .q.invalid { border-color: var(--error); }
+  .q-title { font-weight: 600; margin-bottom: 10px; }
+  .q-title .req { color: var(--error); margin-left: 4px; }
+  .q-title .hint { font-weight: normal; color: var(--muted); font-size: .85rem; margin-left: 6px; }
+  .opts { display: grid; gap: 6px; }
+  .opt {
+    display: flex; align-items: flex-start; gap: 8px;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .opt:hover { background: var(--accent-soft); }
+  .opt input { margin-top: 5px; accent-color: var(--accent); }
+  .other-input { margin-left: 4px; flex: 1; min-width: 0; }
+  input[type=text], textarea {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg);
+    color: var(--text);
+    font: inherit;
+  }
+  textarea { min-height: 96px; resize: vertical; }
+  .scale-table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+  .scale-table th, .scale-table td { padding: 8px 4px; text-align: center; border-bottom: 1px solid var(--border); }
+  .scale-table td:first-child, .scale-table th:first-child { text-align: left; width: 38%; }
+  .scale-table input { accent-color: var(--accent); width: 18px; height: 18px; }
+  .err-msg { color: var(--error); font-size: .85rem; margin-top: 6px; display: none; }
+  .q.invalid .err-msg { display: block; }
+  .actions { margin-top: 28px; display: flex; gap: 12px; flex-wrap: wrap; }
+  button {
+    font: inherit;
+    padding: 10px 22px;
+    border-radius: 6px;
+    border: 1px solid var(--accent);
+    cursor: pointer;
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-ghost { background: transparent; color: var(--accent); }
+  .thanks { display: none; text-align: center; padding: 48px 16px; }
+  .thanks h2 { border: none; font-size: 1.4rem; }
+  footer { margin-top: 40px; font-size: .8rem; color: var(--muted); text-align: center; }
+
+  /* 量表题在窄屏上改为纵向卡片 */
+  @media (max-width: 560px) {
+    .scale-table thead { display: none; }
+    .scale-table, .scale-table tbody, .scale-table tr, .scale-table td { display: block; width: 100%; }
+    .scale-table tr { padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .scale-table td { border: none; text-align: left; padding: 3px 0; }
+    .scale-table td:first-child { width: 100%; font-weight: 600; }
+    .scale-table td[data-label]::after { content: attr(data-label); margin-left: 6px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>达赖喇嘛相关认知调查问卷</h1>
+    <div class="intro">
+      您好！本问卷用于撰写一份关于达赖喇嘛（第十四世达赖喇嘛丹增嘉措）的调研报告，旨在了解公众对其本人及相关议题的认知、信息来源与看法。<br>
+      问卷<strong>匿名填写</strong>，约需 5–8 分钟。题目不代表任何立场，答案没有对错之分，请根据您的真实想法作答；每道态度题均可选择“不了解 / 不愿回答”。数据仅用于研究用途。
+    </div>
+  </header>
+
+  <div class="progress" id="progressBox">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-text" id="progressText">已完成 0%</div>
+  </div>
+
+  <form id="survey" novalidate></form>
+
+  <div class="thanks" id="thanks">
+    <h2>感谢您的参与！</h2>
+    <p>您的答卷已记录。您可以下载本次答卷数据（JSON 格式），交给调研人员汇总。</p>
+    <div class="actions" style="justify-content:center">
+      <button class="btn-primary" id="downloadBtn" type="button">下载答卷</button>
+      <button class="btn-ghost" id="restartBtn" type="button">重新填写</button>
+    </div>
+  </div>
+
+  <footer>本页面为纯前端问卷，数据不会上传至任何服务器。</footer>
+</div>
+
+<script>
+/* ---------- 问卷题目定义 ---------- */
+const SCALE = ["非常不同意", "不同意", "中立", "同意", "非常同意", "不了解 / 不愿回答"];
+
+const SURVEY = [
+  {
+    title: "一、基本信息",
+    questions: [
+      { id: "age", type: "radio", required: true, title: "您的年龄段",
+        options: ["18 岁以下", "18–25 岁", "26–35 岁", "36–45 岁", "46–60 岁", "60 岁以上"] },
+      { id: "gender", type: "radio", required: true, title: "您的性别",
+        options: ["男", "女", "其他", "不愿透露"] },
+      { id: "region", type: "radio", required: true, title: "您目前的常住地区",
+        options: ["中国大陆", "中国香港 / 澳门 / 台湾", "南亚（印度、尼泊尔等）", "其他亚洲地区", "欧洲", "北美", "其他地区"] },
+      { id: "education", type: "radio", required: true, title: "您的最高学历",
+        options: ["高中及以下", "大专", "本科", "硕士", "博士", "不愿透露"] },
+      { id: "religion", type: "radio", required: true, title: "您的宗教信仰",
+        options: ["藏传佛教", "汉传 / 南传佛教", "其他宗教", "无宗教信仰", "不愿透露"] }
+    ]
+  },
+  {
+    title: "二、知晓程度",
+    questions: [
+      { id: "heard", type: "radio", required: true, title: "您是否听说过“达赖喇嘛”？",
+        options: ["听说过，且比较了解", "听说过，但了解不多", "仅听过名字", "从未听说过"] },
+      { id: "knowledge_level", type: "radio", required: true, title: "您认为自己对藏传佛教及其活佛转世制度的了解程度如何？",
+        options: ["非常了解", "比较了解", "一般", "不太了解", "完全不了解"] },
+      { id: "facts", type: "checkbox", required: false, hint: "（多选，选出您知道的）",
+        title: "以下关于达赖喇嘛的信息，您此前知道哪些？",
+        options: [
+          "“达赖喇嘛”是藏传佛教格鲁派的宗教领袖称号",
+          "现任为第十四世达赖喇嘛，本名丹增嘉措，1935 年出生",
+          "1959 年后长期居住在印度达兰萨拉",
+          "1989 年获得诺贝尔和平奖",
+          "2011 年宣布不再担任流亡机构的政治职务",
+          "关于其转世继承人的认定方式存在争议",
+          "以上都不知道"
+        ] },
+      { id: "first_contact", type: "radio", required: false, title: "您最早是在什么情况下接触到与达赖喇嘛相关的信息？",
+        options: ["学校教育 / 教科书", "新闻报道", "宗教活动或寺院", "书籍 / 纪录片 / 电影", "家人或朋友", "社交媒体", "记不清了"] }
+    ]
+  },
+  {
+    title: "三、信息来源",
+    questions: [
+      { id: "sources", type: "checkbox", required: true, hint: "（多选）",
+        title: "您通常通过哪些渠道获取与达赖喇嘛相关的信息？",
+        options: ["国内官方媒体", "境外 / 国际媒体", "社交媒体平台", "学术书籍与论文", "宗教团体或宗教人士", "亲友交流", "几乎不关注此类信息"],
+        other: true },
+      { id: "source_trust", type: "radio", required: true, title: "您认为目前能获取到的相关信息是否全面、客观？",
+        options: ["非常全面客观", "比较全面客观", "一般", "不太全面客观", "很不全面客观", "说不清"] },
+      { id: "cross_check", type: "radio", required: false, title: "在接触此类信息时，您是否会对比多个来源？",
+        options: ["经常会", "有时会", "很少会", "从不", "不关注此类信息"] }
+    ]
+  },
+  {
+    title: "四、观点与态度",
+    questions: [
+      { id: "attitudes", type: "scale", required: true,
+        title: "请就以下说法表明您的同意程度",
+        items: [
+          { id: "att_religious", text: "达赖喇嘛主要是一位宗教人物" },
+          { id: "att_political", text: "达赖喇嘛同时具有明显的政治角色" },
+          { id: "att_intl", text: "达赖喇嘛在国际上具有较大影响力" },
+          { id: "att_culture", text: "相关议题与藏族文化传承密切相关" },
+          { id: "att_controversy", text: "围绕达赖喇嘛的议题存在较多争议" }
+        ] },
+      { id: "succession", type: "radio", required: true,
+        title: "关于未来达赖喇嘛转世继承人的认定，您比较认同以下哪种看法？",
+        options: [
+          "应遵循历史定制与相关国家法规进行认定",
+          "应由宗教团体内部按宗教传统自行决定",
+          "应由现任达赖喇嘛本人决定（包括是否转世）",
+          "这是复杂问题，需多方协商",
+          "不了解 / 不愿回答"
+        ],
+        other: true },
+      { id: "interest", type: "radio", required: true, title: "您对达赖喇嘛相关议题的关注程度如何？",
+        options: ["非常关注", "比较关注", "一般", "不太关注", "完全不关注"] },
+      { id: "topics", type: "checkbox", required: false, hint: "（多选）",
+        title: "您希望本调研报告重点讨论哪些方面？",
+        options: ["历史沿革与制度背景", "宗教思想与教义", "政治与国际关系", "转世传承问题", "藏族文化与社会发展", "媒体呈现与舆论差异"],
+        other: true },
+      { id: "impression", type: "radio", required: true, title: "总体而言，您对达赖喇嘛的印象是？",
+        options: ["非常正面", "比较正面", "中性", "比较负面", "非常负面", "不了解 / 不愿回答"] }
+    ]
+  },
+  {
+    title: "五、开放性问题",
+    questions: [
+      { id: "opinion", type: "text", required: false,
+        title: "请简要谈谈您对达赖喇嘛或相关议题的看法（选填）",
+        placeholder: "可以写下您的观点、疑问或认为重要的背景信息……" },
+      { id: "suggestion", type: "text", required: false,
+        title: "您对本次调研或问卷设计有什么建议？（选填）",
+        placeholder: "例如：题目是否中立、是否有遗漏的问题等" }
+    ]
+  }
+];
+
+const DRAFT_KEY = "dalai-lama-survey-draft";
+const form = document.getElementById("survey");
+let lastResult = null;
+
+/* ---------- 渲染 ---------- */
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+function renderQuestion(q, num) {
+  const req = q.required ? '<span class="req">*</span>' : "";
+  const hint = q.hint ? `<span class="hint">${esc(q.hint)}</span>` : "";
+  let body = "";
+
+  if (q.type === "radio" || q.type === "checkbox") {
+    body = '<div class="opts">' + q.options.map((o, i) =>
+      `<label class="opt"><input type="${q.type}" name="${q.id}" value="${esc(o)}"><span>${esc(o)}</span></label>`
+    ).join("");
+    if (q.other) {
+      body += `<label class="opt"><input type="${q.type}" name="${q.id}" value="__other__"><span>其他：</span>
+        <input type="text" class="other-input" name="${q.id}__other" placeholder="请注明"></label>`;
+    }
+    body += "</div>";
+  } else if (q.type === "scale") {
+    body = '<table class="scale-table"><thead><tr><th></th>' +
+      SCALE.map(s => `<th>${esc(s)}</th>`).join("") + "</tr></thead><tbody>" +
+      q.items.map(it => `<tr><td>${esc(it.text)}</td>` +
+        SCALE.map((s, i) => `<td data-label="${esc(s)}"><input type="radio" name="${it.id}" value="${i < 5 ? i + 1 : 0}" aria-label="${esc(it.text)}：${esc(s)}"></td>`).join("") +
+        "</tr>").join("") +
+      "</tbody></table>";
+  } else if (q.type === "text") {
+    body = `<textarea name="${q.id}" placeholder="${esc(q.placeholder || "")}" maxlength="1000"></textarea>`;
+  }
+
+  return `<div class="q" id="q_${q.id}" data-qid="${q.id}">
+    <div class="q-title">${num}. ${esc(q.title)}${req}${hint}</div>
+    ${body}
+    <div class="err-msg">此题为必答题，请完成作答</div>
+  </div>`;
+}
+
+function render() {
+  let n = 0, html = "";
+  SURVEY.forEach(sec => {
+    html += `<section><h2>${esc(sec.title)}</h2>`;
+    sec.questions.forEach(q => { html += renderQuestion(q, ++n); });
+    html += "</section>";
+  });
+  html += `<div class="actions">
+    <button type="submit" class="btn-primary">提交问卷</button>
+    <button type="button" class="btn-ghost" id="resetBtn">清空重填</button>
+  </div>`;
+  form.innerHTML = html;
+}
+
+/* ---------- 数据收集与校验 ---------- */
+const allQuestions = () => SURVEY.flatMap(s => s.questions);
+
+function collect() {
+  const data = {};
+  allQuestions().forEach(q => {
+    if (q.type === "radio") {
+      const el = form.querySelector(`input[name="${q.id}"]:checked`);
+      let v = el ? el.value : null;
+      if (v === "__other__") v = "其他：" + (form.elements[q.id + "__other"].value.trim());
+      data[q.id] = v;
+    } else if (q.type === "checkbox") {
+      data[q.id] = [...form.querySelectorAll(`input[name="${q.id}"]:checked`)].map(el =>
+        el.value === "__other__" ? "其他：" + form.elements[q.id + "__other"].value.trim() : el.value);
+    } else if (q.type === "scale") {
+      data[q.id] = {};
+      q.items.forEach(it => {
+        const el = form.querySelector(`input[name="${it.id}"]:checked`);
+        data[q.id][it.id] = el ? Number(el.value) : null;
+      });
+    } else if (q.type === "text") {
+      data[q.id] = form.elements[q.id].value.trim();
+    }
+  });
+  return data;
+}
+
+function isAnswered(q, data) {
+  const v = data[q.id];
+  if (q.type === "radio") return !!v && v !== "其他：";
+  if (q.type === "checkbox") return v.length > 0 && !v.includes("其他：");
+  if (q.type === "scale") return Object.values(v).every(x => x !== null);
+  if (q.type === "text") return v.length > 0;
+  return false;
+}
+
+function updateProgress() {
+  const data = collect();
+  const qs = allQuestions();
+  const done = qs.filter(q => isAnswered(q, data)).length;
+  const pct = Math.round(done / qs.length * 100);
+  document.getElementById("progressFill").style.width = pct + "%";
+  document.getElementById("progressText").textContent = `已完成 ${pct}%（${done}/${qs.length}）`;
+  return data;
+}
+
+/* ---------- 草稿暂存 ---------- */
+function saveDraft() {
+  try {
+    const entries = [];
+    form.querySelectorAll("input, textarea").forEach(el => {
+      if ((el.type === "radio" || el.type === "checkbox") && el.checked) entries.push([el.name, el.value, true]);
+      else if ((el.type === "text" || el.tagName === "TEXTAREA") && el.value) entries.push([el.name, el.value, false]);
+    });
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(entries));
+  } catch (e) { /* 存储不可用时忽略 */ }
+}
+
+function loadDraft() {
+  try {
+    const entries = JSON.parse(localStorage.getItem(DRAFT_KEY) || "[]");
+    entries.forEach(([name, value, isCheck]) => {
+      if (isCheck) {
+        form.querySelectorAll(`input[name="${CSS.escape(name)}"]`).forEach(el => { if (el.value === value) el.checked = true; });
+      } else if (form.elements[name]) {
+        form.elements[name].value = value;
+      }
+    });
+  } catch (e) { /* 忽略 */ }
+}
+
+function clearDraft() {
+  try { localStorage.removeItem(DRAFT_KEY); } catch (e) { /* 忽略 */ }
+}
+
+/* ---------- 交互 ---------- */
+form.addEventListener("input", e => {
+  // 填写“其他”文本时自动勾选对应选项
+  if (e.target.classList.contains("other-input")) {
+    const box = e.target.closest(".opt").querySelector('input[value="__other__"]');
+    if (e.target.value.trim()) box.checked = true;
+  }
+  const q = e.target.closest(".q");
+  if (q) q.classList.remove("invalid");
+  updateProgress();
+  saveDraft();
+});
+
+function submitSurvey(e) {
+  e.preventDefault();
+  const data = collect();
+  let firstInvalid = null;
+  allQuestions().forEach(q => {
+    const box = document.getElementById("q_" + q.id);
+    const bad = q.required && !isAnswered(q, data);
+    box.classList.toggle("invalid", bad);
+    if (bad && !firstInvalid) firstInvalid = box;
+  });
+  if (firstInvalid) {
+    firstInvalid.scrollIntoView({ behavior: "smooth", block: "start" });
+    return;
+  }
+
+  lastResult = {
+    survey: "达赖喇嘛相关认知调查",
+    version: "1.0",
+    submittedAt: new Date().toISOString(),
+    scaleNote: "量表题：1=非常不同意 … 5=非常同意，0=不了解/不愿回答",
+    answers: data
+  };
+  // 如需上传到服务器，可在此处使用 fetch 将 lastResult POST 到后端接口
+  clearDraft();
+  form.style.display = "none";
+  document.getElementById("progressBox").style.display = "none";
+  document.getElementById("thanks").style.display = "block";
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+form.addEventListener("submit", submitSurvey);
+
+form.addEventListener("click", e => {
+  if (e.target.id === "resetBtn" && confirm("确定要清空所有已填写的内容吗？")) {
+    form.reset();
+    form.querySelectorAll(".q.invalid").forEach(el => el.classList.remove("invalid"));
+    clearDraft();
+    updateProgress();
+  }
+});
+
+document.getElementById("downloadBtn").addEventListener("click", () => {
+  if (!lastResult) return;
+  const blob = new Blob([JSON.stringify(lastResult, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `survey_${Date.now()}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
+
+document.getElementById("restartBtn").addEventListener("click", () => {
+  form.reset();
+  form.style.display = "";
+  document.getElementById("progressBox").style.display = "";
+  document.getElementById("thanks").style.display = "none";
+  updateProgress();
+  window.scrollTo({ top: 0 });
+});
+
+render();
+loadDraft();
+updateProgress();
+</script>
+</body>
+</html>
